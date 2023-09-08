@@ -1,0 +1,101 @@
+# Data Visualizations 
+
+## Visualization 1: Stocks
+```{r echo=FALSE, message = FALSE}
+
+
+library(quantmod)
+library(xts)
+library(ggplot2)
+library(plotly)
+
+# Define the symbols for the three stocks
+symbols <- c("NFLX", "GOOGL", "MSFT")
+
+# Define the date range
+start_date <- as.Date("2012-10-01")
+end_date <- as.Date("2023-07-01")
+
+# Fetch the closing prices for the three stocks
+closing_prices <- lapply(symbols, function(symbol) {
+    stock_data <- getSymbols(symbol, from = start_date, to = end_date, auto.assign = FALSE)
+    Cl(stock_data)
+})
+
+# Combine the closing prices into a single data frame
+closing_prices_df <- do.call(cbind, closing_prices)
+
+# Set column names to the stock symbols
+colnames(closing_prices_df) <- symbols
+
+# Create a data frame with date as a column
+stock <- data.frame(date = index(closing_prices_df), closing_prices_df)
+
+# Rename columns to match ticker symbols
+colnames(stock) <- c("date", symbols)
+
+# Create a ggplot object
+g4 <- ggplot(stock, aes(x = date)) +
+    geom_line(aes(y = NFLX, colour = "NFLX")) +
+    geom_line(aes(y = GOOGL, colour = "GOOGL")) +
+    geom_line(aes(y = MSFT, colour = "MSFT")) +
+    labs(
+        title = "Closing Stock Prices for Tech Companies",
+        subtitle = "From 2012-2023",
+        x = "Date",
+        y = "Adjusted Closing Prices"
+    ) +
+    guides(colour = guide_legend(title = "Tech Companies"))
+
+# Convert ggplot object to plotly
+ggplotly(g4) %>%
+    layout(hovermode = "x")
+
+
+```
+
+All three companies, namely Netflix (NFLX), Alphabet Inc. (GOOGL), and Microsoft (MSFT), have exhibited a consistent upward trajectory in their stock prices from 2014 through 2024. Notably, each of these companies reached its peak valuation in 2022, after which their stock prices experienced a noticeable decline. However, the most striking observation gleaned from the graphical representation is the remarkable volatility displayed by Netflix's stock (NFLX). This heightened volatility aligns with the dynamic nature of the entertainment industry, which has undergone significant transformation in recent years, reflecting shifting consumer preferences and evolving market dynamics.
+
+
+
+## Visualization 2: Climate 
+
+```{r echo=FALSE , message = FALSE}
+library(ggplot2)
+library(plotly)
+
+df_climate <- read.csv("climate.csv")
+tobb <- df_climate[1095:1344, c(3, 11)]
+
+tobb$DATE <- as.Date(tobb$DATE, "%Y-%m-%d")
+
+pw <- ggplot(tobb, aes(x = DATE, y = TOBS)) +
+    geom_line(colour = "blue") +
+    ggtitle("Temperature at the time of observation from 2021-01-01 to 2021-09-30 in Washington DC")
+
+ggplotly(pw)
+```
+
+The Temperature-Observation (TOBS) data reveals a consistent rising trend spanning from January to October, marked by a recurring "M" shaped pattern that steadily increases over time. However, this upward trajectory is accompanied by substantial fluctuations, indicative of pronounced volatility in the temperature data. This temperature pattern aligns logically with seasonal changes, as January typically ushers in the winter season, characterized by lower temperatures, with subsequent months witnessing a gradual warming trend. The cyclic "M" shape in the data underscores the regularity of these temperature fluctuations throughout the ascending period, underscoring the predictable yet dynamic nature of seasonal temperature shifts.
+
+
+## Visualization 3: Unemployment Rate
+
+```{r echo=FALSE , message = FALSE}
+df_ur <- read.csv("UNRATE.csv")
+# Convert DATE column to Date type (if it's not already)
+df_ur$DATE <- as.Date(df_ur$DATE)
+
+# Create a time series plot
+ggplot(data = df_ur, aes(x = DATE, y = UNRATE)) +
+    geom_line() +
+    labs(
+        title = "Unemployment Rate (%) over the years",
+        x = "Date",
+        y = "Unemployment Rate (%)"
+    ) +
+    theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+The trajectory of the unemployment rate between 1990 and 2020 is notably absent of any discernible consistent trend in either direction. Instead, it exhibits a recurrent pattern reminiscent of an "A," albeit with varying magnitudes across different periods. However, the year 2020 stands out as an exceptional anomaly in this pattern, as the unemployment rate soared to an all-time high. This significant spike in unemployment in 2020 can be readily attributed to the profound impact that the COVID-19 pandemic had on society, causing widespread economic disruptions and leading to substantial job losses. Consequently, while the unemployment rate's historical fluctuations may follow a recurring pattern, the unprecedented events of 2020 underline the disruptive force of external factors on the labor market.
