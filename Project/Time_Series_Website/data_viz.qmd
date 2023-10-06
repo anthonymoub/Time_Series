@@ -1,0 +1,35 @@
+# Data Visualizations 
+
+## Weekend Box Office (1977-2023)
+
+<iframe src="http://anthonymoubarak.georgetown.domains/BoxOfficeTime/index.html" frameborder="0" width="100%" height="450"></iframe>
+
+A notable and broad observation is the evolution of weekend box office results from 1977 to 2023. The initial and unmistakable trend is the nearly exponential growth in weekly box office earnings over time. In the past, weekend box office earnings were typically in the range of a couple of million dollars, whereas nowadays, they often reach into the tens or even hundreds of millions.
+
+These results are in line with the significant expansion of the movie industry over the last few decades. Ticket prices have risen in response to inflation, and movies have become a much more substantial and influential part of popular culture as time has progressed.
+
+Regarding seasonality and cyclic patterns, it appears that there are consistent recurring cycles throughout this time period, although a more detailed analysis of these patterns will be conducted in the EDA (Exploratory Data Analysis) section. Additionally, there seems to be a continuous increase in the difference between the lowest and highest points, and this gap appears to be widening as time goes on.
+
+## Weekend Box Office Winners per Genre
+
+<iframe src="http://anthonymoubarak.georgetown.domains/BoxOfficeGenres/index.html" frameborder="0" width="100%" height="600"></iframe>
+
+One of the most obvious facts is that certain types of movies consistently outperform others at the box office. For instance, franchise movies, such as superhero films, have consistently demonstrated stronger performance compared to other genres. Remarkably, when we examine the top 10 highest-grossing movies of all time, only one, "Titanic," does not belong to a major intellectual property or franchise. Therefore, it is sensible to analyze the top box office performers within different genres over time.
+
+The animated plot presented above illustrates the genres that have dominated the box office each year. Surprisingly, the number of films winning the weekend box office in various genres varies widely from year to year. Genres like Action and Drama often cover the majority of box office winners. However, this pattern can be explained by the infrequent release of big franchise movies. Producing such films entails significant costs and time, resulting in less frequent releases. Conversely, there is a consistent influx of drama and low-budget movies being released every week, contributing to a more diverse distribution of box office results across genres.
+
+## Movie Reviews of Top Box Office Earners
+
+<iframe src="http://anthonymoubarak.georgetown.domains/BoxOfficeRT/index.html" frameborder="0" width="100%" height="420"></iframe>
+
+Another layer of analysis worth exploring is whether critically acclaimed movies tend to top the box office or not. To investigate this, the plot above utilizes data from Rotten Tomatoes, the most widely recognized platform for aggregating critic movie reviews. On Rotten Tomatoes, movies are categorized as either "Fresh" or "Rotten." "Fresh" signifies movies with ratings above 60%, indicating that 60% or more of critics gave the film a positive review, while the rest are considered "Rotten."
+
+Examining the distribution of movies in these two categories is quite intriguing. It reveals an almost even split, with roughly half of the movies classified as "Fresh" and the other half as "Rotten." This suggests that there isn't an overwhelming reliance on a movie's critical reception for its opening weekend success. However, the story may differ when considering a movie's long-term box office performance, as a film is less likely to have staying power if it doesn't receive positive reviews from critics.
+
+This observation could be a subtle indication that factors like hype and marketing might exert a more significant influence on a movie's opening weekend performance compared to critic ratings. For instance, franchises like "Fast & Furious" consistently perform well in their opening weekends despite not always receiving favorable critical acclaim.
+
+## Studio Financial Analysis
+
+<body>
+<div class='tableauPlaceholder' id='viz1696612687924' style='position: relative'><noscript><a href='#'><img alt='Dashboard 1 ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;St&#47;StockAnalysis_16964403986650&#47;Dashboard1&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='StockAnalysis_16964403986650&#47;Dashboard1' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;St&#47;StockAnalysis_16964403986650&#47;Dashboard1&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /><param name='filter' value='publish=yes' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1696612687924');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1000px';vizElement.style.height='827px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1000px';vizElement.style.height='827px';} else { vizElement.style.width='100%';vizElement.style.height='1227px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+</body>

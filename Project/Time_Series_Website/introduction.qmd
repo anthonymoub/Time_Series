@@ -1,0 +1,60 @@
+---
+project:
+  type: website
+
+website:
+  title: "Time Series"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+---
+
+# Time Series and the Movie Industry {.main_title}
+
+![](img/movies.jpeg)
+
+If we go back in history, we can clearly see that as a species we have always been known to be story tellers, whether it is drawing our stories on cave walls or telling our stories around a campfire; the stories we tell have always been a representation of who we are, where we come from, and who we want to be. Movies happen to be the most advanced type of storytelling, and they answer all these questions using creativity. My very first childhood memory I have with my father is when he took me to watch the first “Iron Man” back in 2008, and ever since that moment, I have become a movie addict.
+
+Fueled by my deep passion for the film industry, I have chosen to apply the time series analysis skills I am acquiring in this course to gain a more comprehensive understanding of the industry. My goal is to analyze it rigorously from various technical perspectives and delve into the profound transformations that time has wrought upon the film industry. 
+
+In addition to being a passion project of mine, the film industry is one of the most numbers and data centric industries out there
+
+This project aims to analyze the film industry from a variety of angles including:
+
+* Box Office Analysis: This section entails a  time series analysis of the box office performance of films throughout the years. It will also encompass forecasting methodologies.
+
+* Reviews and Public Perception: A look at the evolution of public perception regarding films over time. This analysis will primarily include the examination of film reviews and social media sentiment analysis.
+
+* Industry Financial Insights: This section will predominantly revolve around the in-depth analysis of the film industry's financial aspects, including the performance of film studio stocks and production costs.
+
+![Image 1: Project Overview](img/Flow_Chart.png)
+
+The range of topics to explore within each of the aforementioned sections/angles is extensive. However, for this project, I have chosen to address a selection of questions pertaining to each angle. These questions encompass:
+
+* How has the overall box office evolved over the years?
+* What markets, namely the US versus international, have commanded the largest share of box office revenues?
+* Which film genres have been associated with the highest box office returns, and has this association changed over time?
+* How has the streaming industry affect the Box Office of movies?
+* Can Time Series models effectively forecast the US box office performance of a film?
+* How has the sentiment of movie reviews shifted throughout the years?
+* Has there consistently existed a disparity between audience scores and critic scores?
+* Is it feasible for a time series model to predict the score of an upcoming movie?
+* How have production costs and budgets fluctuated over the years?
+* In what manner has the return on investment (ROI) of films changed over the years, and how does it correlate with a film's success?
+
+
+Each of the above questions and topics will be addressed via different sets of visualizations, statistical analysis, and time series models that will give different inisights.
+
+### Literature Review
+
+Below are a couple of studies and articles that will serve as references moving forward with the project:
+
+* https://www.researchgate.net/publication/361884293_Exploiting_time_series_based_story_plot_popularity_for_movie_success_prediction
+* https://eudl.eu/pdf/10.4108/eai.23-12-2022.2329074
+* http://journal.kci.go.kr/jksci/archive/articleView?artiId=ART002596610
+* https://www.sciencedirect.com/science/article/abs/pii/S1389041718300731
+* https://towardsdatascience.com/a-new-approach-to-film-making-80cec94284f0
+
