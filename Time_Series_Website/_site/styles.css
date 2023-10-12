@@ -1,1 +1,22 @@
 /* css styles */
+
+.main_title h1{
+    text-align: center;
+}
+
+/* Adjust the default TOC to appear on the left and be vertical */
+#TOC {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20%; 
+    height: 100vh;
+    overflow: auto;
+    padding: 20px;
+    background: #f7f7f7;
+}
+
+body {
+    padding-left: 0%;
+    width: 100%;
+}

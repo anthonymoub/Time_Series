@@ -12,32 +12,10 @@ format:
     toc: true
 ---
 
-# Time Series
+# About Me 
 
-## What is Time Series ?
+My name is Anthony and I am from Lebanon. I did my undergraduate studies at the Lebanese American University and majored in Industrial Engineering. Halfway through my undergrad, I developed an interest in Data Science and decided to study it on my own via online courses and personal projects to make sure it is the field I wanted to work in, which turned out to be the case as I was instantly captivated by the field’s interdisciplinary nature that could be applicable in a variety of industries. 
 
-* Any metric that is measured over regular time intervals makes a Time Series. A time series is a sequence of data points or observations collected or recorded over a period of time at specific, equally spaced intervals. Each data point in a time series is associated with a particular timestamp or time period, making it possible to analyze and study how a particular variable or phenomenon changes over time. Time series data can be found in various domains and can represent a wide range of phenomena, including financial data, economic indicators, weather measurements, stock prices, sales figures, and more.
+I am a very multi-dimensional person and have several hobbies including CrossFit (and many other forms of fitness), playing the electric guitar, watching podcasts on various topics (a very underrated form of intellect in my opinion), and many more. As for my passions, I am a film enthusiast and could spend hours talking about movies and how they mirror humans and society in general, a Metalhead (from indie Red Hot Chili Peppers type of rock all the way to SlipKnot metal style), and I am also very interested in psychology and philosophy. 
 
-  * Example: Weather data, Stock prices, Industry forecasts, etc are some of the common ones.
-
-* The analysis of experimental data that have been observed at different points in time leads to new and unique problems in statistical modeling and inference.
-
-* The obvious correlation introduced by the sampling of adjacent points in time can severely restrict the applicability of the many conventional statistical methods traditionally dependent on the assumption that these adjacent observations are independent and identically distributed.
-
-**Key characteristics of time series data include:**
-
-**Temporal Order:** Time series data is ordered chronologically, with each data point representing an observation at a specific point in time. The order of data points is critical for understanding trends and patterns over time.
-
-**Equally Spaced Intervals:** In most cases, time series data is collected at regular intervals, such as hourly, daily, weekly, monthly, or yearly. However, irregularly spaced time series data can also exist.
-
-**Dependency:** Time series data often exhibits temporal dependency, meaning that the value at a given time is influenced by or related to the values at previous times. This dependency can take various forms, including trends, seasonality. This serial correlation is called as autocorrelation.
-
-**Components:** Time series data can typically be decomposed into various components, including:
-
-**Trend:** The long-term movement or direction in the data. Seasonality: Repeating patterns or cycles that occur at fixed intervals. Noise/Irregularity: Random fluctuations or variability in the data that cannot be attributed to the trend or seasonality.
-
-**Applications:** Time series data is widely used for various applications, including forecasting future values, identifying patterns and anomalies, understanding underlying trends, and making informed decisions based on historical data.
-
-Analyzing time series data involves techniques like time series decomposition, smoothing, statistical modeling, and forecasting. This class will cover but not be limited to traditional time series modeling including ARIMA, SARIMA, the multivariate Time Series modeling including; ARIMAX, SARIMAX, and VAR models, Financial Time Series modeling including; ARCH, GARCH models, and E-GARCH, M-GARCH..ect, Bayesian structural time series (BSTS) models, Spectral Analysis and Deep Learning Techniques for Time Series. Researchers and analysts use software tools like Python, R, and specialized time series libraries to work with and analyze time series data effectively.
-
-Time series analysis is essential in fields such as finance, economics, epidemiology, environmental science, engineering, and many others, as it provides insights into how variables change over time and allows for the development of predictive models to forecast future trends and outcomes.
+I firmly believe that I should eventually work at a company that I actually believe in and in their products, as I aim to look at my job as my purpose, in the sense of contributing to an environment that serves the world products that are impactful and that matter. That being said, upon graduation I see myself working as a Data Scientist in an industry that revolves around a passion of mine. Netflix, Spotify, WHOOP, are examples of companies that I would love to work in as I would be directly contributing to the world of film,music, fitness.

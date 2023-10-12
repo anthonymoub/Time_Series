@@ -1,0 +1,274 @@
+---
+title: "Time_Series_Analysis"
+output: html_document
+date: "2023-10-06"
+---
+
+```{r}
+df <- read.csv("/Users/anthonymoubarak/Desktop/Time_Series/Project/Data/BoxOfficeMojo/box_office_mojo_cleaned.csv")
+head(df)
+```
+
+```{r}
+
+library(forecast)
+library(ggplot2)
+library(dplyr)
+
+#install.packages("zoo")
+library(zoo)
+df$top10_gross <- as.numeric(gsub(",", "", gsub("\\$", "", df$top10_gross)))
+df$top10_gross <- na.approx(df$top10_gross)
+convert_to_date <- function(week_string) {
+    year <- substr(week_string, 1, 4)
+    month <- match(substr(week_string, 6, 8), month.abb)
+    week <- as.numeric(substr(week_string, 11, 12))
+    # Assume the first day of each week is a Monday
+    as.Date(paste(year, month, (week - 1) * 7 + 1, sep = "-"))
+}
+df$date <- sapply(df$weekend, convert_to_date)
+library(zoo)
+gdp.ts <- zoo(df$top10_gross, order.by = df$weekend)
+
+
+# Define a function to create a lagged dataframe for a given lag
+create_lagged_data <- function(lag) {
+    df_lag_temp <- df %>%
+      arrange(date) %>%
+      mutate(original = top10_gross,
+             value = lag(top10_gross, lag)) %>%
+      filter(!is.na(value)) %>%
+      mutate(lag = lag) # Add a column to specify the lag
+    return(df_lag_temp)
+}
+
+# Create lagged dataframes for lags 1, 15, 30, and 52
+lags <- c(1, 15, 30, 52)
+list_df_lags <- lapply(lags, create_lagged_data)
+
+# Combine all lagged dataframes into one
+df_lag <- do.call(rbind, list_df_lags)
+
+million_format <- function(x) {
+    return(paste0(signif(x / 1e6, 2), "M"))
+}
+
+
+# Plot the data using ggplot
+p <- ggplot(data = df_lag, aes(x = value, y = original)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  facet_wrap(~lag, ncol = 2) +
+  ggtitle("Lag Plots for Opening Weekend Box Office") +
+  xlab("Lagged values") +
+  ylab("Original values") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(labels = million_format) +
+  scale_y_continuous(labels = million_format)
+
+p
+```
+```{r echo = FALSE}
+
+ggsave("lag_plots.png", plot = p, width = 10, height = 8)
+```
+
+```{r}
+
+library(forecast)
+library(ggplot2)
+library(dplyr)
+
+# Check for duplicated indexes
+duplicated_index <- index(gdp.ts)[duplicated(index(gdp.ts))]
+
+# Handle duplicates (e.g., by taking the average)
+if (length(duplicated_index) > 0) {
+  gdp.ts <- aggregate(gdp.ts, by = index(gdp.ts), FUN = mean)
+}
+
+# Decompose and plot
+gdp.ts.clean <- na.omit(gdp.ts)
+decompose_bo <- decompose(ts(gdp.ts.clean, frequency = 12), "multiplicative")   
+
+label_in_millions <- function(x) {
+  return(paste0(round(x / 1e6, 1), "M"))
+}
+
+decomp <- autoplot(decompose_bo) + 
+  scale_y_continuous(labels = label_in_millions) +
+  theme_minimal() +
+  theme(
+    plot.title.position = "plot",
+    plot.title = element_text(hjust = 0.5)  # This line ensures the title is centered
+  )
+
+decomp
+
+```
+
+```{r echo = FALSE}
+
+ggsave("decomposed_plot.png", plot = decomp, width = 10, height = 8)
+```
+
+
+```{r}
+
+# Define a custom label function for displaying in millions
+label_in_millions <- function(x) {
+  return(paste0(round(x / 1e6, 1), "M"))
+}
+
+df_2020 <- df[df$year == 2020, ]
+df_2020$top10_gross <- na.approx(df_2020$top10_gross)
+ts_2020 <- ts(df_2020$top10_gross, frequency = 12)  # Adjust frequency based on data granularity
+decomposed_2020 <- decompose(ts_2020, type = "multiplicative")
+
+sampled_decomp <- autoplot(decomposed_2020) + 
+  scale_y_continuous(labels = label_in_millions) +
+  theme_minimal() +
+  theme(
+    plot.title.position = "plot",
+    plot.title = element_text(hjust = 0.5)  # Centering the title
+  )
+sampled_decomp
+ 
+
+```
+
+```{r echo = FALSE}
+
+ggsave("sampled_decomp.png", plot = sampled_decomp, width = 10, height = 8)
+```
+
+
+# Moving Average Analsysis
+```{r}
+ma_df <- df[, c('weekend' , 'top10_gross')]
+# Convert 'weekend' to Date format 
+ma_df$weekend <- sapply(ma_df$weekend, convert_to_date)
+
+# Convert 'top10_gross' to numeric
+ma_df$top10_gross <- as.numeric(gsub(",", "", gsub("\\$", "", ma_df$top10_gross)))
+
+ma_df$top10_gross[ma_df$top10_gross == "NULL"] <- NA
+
+# Convert the column to numeric
+ma_df$top10_gross <- as.numeric(ma_df$top10_gross)
+
+# Use interpolation to replace NA values
+ma_df$top10_gross <- na.approx(ma_df$top10_gross)
+
+head(ma_df)
+```
+
+
+```{r}
+length(ts_data)
+```
+
+
+```{r}
+library(forecast)
+library(ggplot2)
+
+# Convert the data to a time series object
+ts_data <- ts(ma_df$top10_gross, frequency = 52) # Assuming weekly data
+
+# Plot the time series with moving average
+autoplot(ts_data, series = "Data") +
+  autolayer(ma(ts_data, 15), series = "5-MA") +
+  xlab("Week") + ylab("Top 10 Gross") +
+  ggtitle("Time Series with 5-MA") +
+  scale_colour_manual(values = c("Data" = "grey50", "5-MA" = "red"),
+                      breaks = c("Data", "5-MA"))
+
+```
+
+```{r}
+
+library(ggplot2)
+library(forecast)
+library(dplyr)
+library(tidyr)
+
+# Calculate moving averages
+ma_df_long <- data.frame(
+  date = time(ts_data),
+  actual = as.vector(ts_data),
+  ma_100 = ma(ts_data, 100),
+  ma_25 = ma(ts_data, 25),
+  ma_52 = ma(ts_data, 52),
+  ma_5 = ma(ts_data, 5)
+ 
+)
+
+# Reshape data to long format
+ma_df_long <- ma_df_long %>%
+  gather(key = "ma_type", value = "value", -date, -actual)
+
+label_in_millions <- function(x) {
+  return(paste0(round(x / 1e6, 1), "M"))
+}
+
+# Plot with custom y-axis labels
+ma_plot <- ggplot(data = ma_df_long, aes(x = date, y = value, color = ma_type)) +
+  geom_line(aes(y = actual), color = "grey50") +
+  geom_line() +
+  facet_wrap(~ma_type, scales = "free_y", ncol = 2) +
+  labs(title = "Moving Averages of Weekend Box Office",
+       y = "Top 10 Gross (in millions)", color = "Moving Average Type") +
+  scale_colour_manual(values = c("actual" = "grey50", "ma_5" = "red", "ma_25" = "blue", "ma_52" = "green", "ma_100" = "purple")) +
+  scale_y_continuous(labels = label_in_millions) +  # Adjust y-axis to "M" format
+  theme_minimal() + theme(
+    plot.title.position = "plot",
+    plot.title = element_text(hjust = 0.5)  # Center the title
+  )
+
+ma_plot
+
+ggsave("ma_plot.png", plot = ma_plot, width = 10, height = 8)
+
+```
+
+# ACF and PACF
+
+```{r}
+acf <- ma_df[, c("top10_gross")]
+acf_p <- ggAcf(acf,52)+ggtitle("Weekend Box Office ACF") + theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+
+acf_p
+```
+```{r}
+ggsave("acf.png", plot = acf_p, width = 10, height = 8)
+```
+
+
+
+
+```{r}
+pacf_p <- ggPacf(acf, lag.max = 52) +
+  ggtitle("Weekend Box Office PACF") + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+pacf_p
+
+
+```
+
+```{r}
+ggsave("pacf.png", plot = pacf_p, width = 10, height = 8)
+```
+
+
+```{r}
+library(tseries)
+adf_result <- adf.test(acf)
+print(adf_result)
+```
+
+```{r}
+
+```

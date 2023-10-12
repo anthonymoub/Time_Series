@@ -1,0 +1,66 @@
+---
+project:
+  type: website
+
+website:
+  title: "Time Series"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+---
+
+# Data  
+
+![](img/Data.png)
+
+Given its size and extensive involvement in various metrics and data over the decades, the film industry has seen the emergence of several online movie databases. Each of these databases offers different metrics, providing unique perspectives for this project. Below are the main databases/sources used and the types of data they provide:
+
+### Box Office Mojo
+
+![](img/Box_Office_Mojo_Logo.jpg)
+
+Box Office Mojo is a well-known online database that specializes in providing comprehensive information about box office revenue, movie performance, and financial data within the film industry. Their API (Application Programming Interface) offers a wealth of valuable data related to box office statistics. This includes details on the earnings of individual movies, both domestically and internationally, as well as historical data that tracks the performance of films over time. The API also provides insights into the performance of films in different genres, the market share of various studios, and other key financial metrics that are crucial for understanding the economic aspects of the movie industry. 
+
+There are several python web scrapers out there that gather data using this API. The main project I got inspired from was the [following Kaggle Project](https://www.kaggle.com/code/jonbown/web-scraping-box-office-data-with-python/output?select=weekend_summary_1998.csv)
+
+
+### The Movie Database (TMDB)
+
+![](img/tmdb.webp)
+
+The Movie Database (TMDB) is a prominent online platform dedicated to movies and television shows. It offers an expansive dataset encompassing movie details such as titles, release dates, genres, cast and crew information, user ratings, images, trailers, and more. TMDB also extends its coverage to TV shows, providing data on episodes and air dates.
+
+There are several python web scrapers out there that gather data using this API. The main project I got inspired from was the [following Kaggle Project](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset)
+
+
+### Rotten Tomatoes
+
+![](img/rt.jpg.webp)
+
+Rotten Tomatoes is a well-known review aggregator website that compiles critical and audience reviews for movies and television shows. It provides a dual-score system, featuring the Tomatometer score, which reflects the percentage of positive reviews from professional critics, and the Audience Score, based on user ratings and reviews. Rotten Tomatoes' data is a valuable resource for assessing the dynamic relationship between critic and audience perspectives within the realm of entertainment.
+
+There are several python web scrapers out there that gather data using this API. The main project I got inspired from was the [following Kaggle Project](https://www.kaggle.com/datasets/stefanoleone992/rotten-tomatoes-movies-and-critic-reviews-dataset?select=rotten_tomatoes_movies.csv)
+
+
+### IMDB
+
+![](img/imdb.svg.png)
+
+IMDb, short for the Internet Movie Database, is a renowned online platform that offers an extensive database of films, television series, and related content. It provides comprehensive information about movies, including details about cast and crew, plot summaries, release dates, and user-generated reviews and ratings.
+
+The IMDB API is very expensive to use, but there are several Kaggle projects that have gathered this data previously.The main project I got inspired from was the [following Kaggle Project](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews)
+
+
+### Yahoo Finance
+
+![](img/yahoo.png)
+
+Yahoo Finance is a widely recognized and trusted financial information platform that offers a wealth of data and insights related to publicly traded companies, including those in the entertainment and film industry.
+
+*Note:* More data will be added along the way as need be ...
+
+
+
