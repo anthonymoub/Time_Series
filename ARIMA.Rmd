@@ -1,0 +1,243 @@
+---
+title: "ARIMA"
+output: html_document
+date: "2023-10-06"
+---
+
+```{r}
+
+library(tseries)
+library(ggplot2)
+
+df <- read.csv("ARIMA.csv")
+head(df)
+```
+
+```{r}
+adf_test <- adf.test(df$top10_gross)
+print(adf_test)
+if (adf_test$p.value <= 0.05) {
+  cat("The series is stationary.\n")
+} else {
+  cat("The series is not stationary.\n")
+}
+```
+
+```{r}
+ 
+acf(df$top10_gross, main="ACF of top10_gross")
+```
+
+```{r}
+pacf(df$top10_gross, main="PACF of top10_gross")
+```
+
+The ACF and PACF plots are essential tools for determining the order of AR and MA terms in an ARIMA model. Analyzing the ACF plot, which displays a gradual decay, suggests the presence of an AutoRegressive (AR) process. The lack of a sharp cut-off after a particular lag hints that the data could be better described using an AR term. Meanwhile, the PACF plot reveals significant spikes at lags 1 and 2, indicating two potential AR terms, while the subsequent spikes fall within the confidence intervals and can be disregarded.
+
+Given these observations, the AR term's order (p) is likely 2, as deduced from the two significant lags in the PACF. The MA term's order (q) is not explicitly evident from the ACF plot. However, considering the ACF's gradual decline, it's possible that an MA term may not be necessary or, if deemed essential, could commence at q=1, with further adjustments made based on model diagnostics. In conclusion, an initial ARIMA model can be considered with p=2 and a tentative q=1, which can then be refined as required.
+
+
+```{r}
+library(forecast)
+```
+
+```{r}
+
+ts_data <- ts(df$top10_gross)
+fit <- Arima(ts_data, order=c(1,1,2))
+
+
+```
+
+```{r}
+
+# Assuming you've already loaded the necessary libraries and created ts_data
+library(forecast)
+
+# Define the range of p and q values to loop through
+p_values <- c(1,2,3)
+q_values <- c(1,2)
+
+# Initialize variables to store best models and their AIC and BIC
+best_aic <- Inf
+best_bic <- Inf
+best_model_aic <- NULL
+best_model_bic <- NULL
+
+# Loop through all combinations of p and q
+for(p in p_values) {
+  for(q in q_values) {
+    model <- Arima(ts_data, order=c(p,1,q))
+    if(model$aic < best_aic) {
+      best_aic <- model$aic
+      best_model_aic <- model
+    }
+    if(model$bic < best_bic) {
+      best_bic <- model$bic
+      best_model_bic <- model
+    }
+  }
+}
+
+# Print the best models
+print(paste("Best ARIMA model based on AIC: ARIMA(", best_model_aic$arma[1], ",1,", best_model_aic$arma[2], ") with AIC =", best_aic))
+print(paste("Best ARIMA model based on BIC: ARIMA(", best_model_bic$arma[1], ",1,", best_model_bic$arma[2], ") with BIC =", best_bic))
+
+
+```
+
+```{r}
+summary(best_model_aic) # or best_model_bic
+
+```
+
+
+Equation: 
+
+Given the ARIMA(3,1,2) model for the time series, the equation can be expressed as:
+
+\[ (1 - 0.9475L + 0.2340L^2 - 0.1044L^3) \Delta Y_t = (1 + 1.4502L - 0.4615L^2) \epsilon_t \]
+
+Where:
+- \( L \) is the lag operator.
+- \( \Delta \) denotes the first differencing (as d=1).
+- \( Y_t \) is the value of the time series at time \( t \).
+- \( \epsilon_t \) is the error term at time \( t \).
+
+
+Running a model diagnostics:
+
+```{r}
+# 1. Plot residuals
+std_residuals <- residuals(best_model_aic) / sqrt(best_model_aic$sigma2)
+plot(std_residuals, main="Standardized Residuals")
+
+# 2. ACF and PACF of residuals
+acf(residuals(best_model_aic), main="ACF of Residuals")
+pacf(residuals(best_model_aic), main="PACF of Residuals")
+
+# 3. Histogram of residuals
+hist(residuals(best_model_aic), main="Histogram of Residuals", xlab = "Residuals"  ,breaks=20)
+
+# 4. Q-Q plot
+qqnorm(residuals(best_model_aic))
+qqline(residuals(best_model_aic))
+
+# 5. Ljung-Box test
+Box.test(residuals(best_model_aic), lag=log(length(residuals(best_model_aic))))
+
+
+```
+Residual Analysis:
+
+
+Volatility Clustering: A striking characteristic in the residuals is the evident volatility clustering. This pattern, wherein stretches of high variability are succeeded by comparable periods and vice versa for low variability, hints at potential external factors or events leading to pronounced spikes or dips in box office figures. Upon closer examination, it becomes apparent that the more significant model deviations align closely with the onset of the COVID-19 pandemic. This alignment is understandable since the pandemic significantly disrupted the market, and it would be unreasonable to expect any pre-existing model to have accounted for such an unprecedented event. A pragmatic approach might involve developing two distinct models: one for the pre-COVID era and another for the post-COVID landscape.
+
+Consistency and Predictive Performance: The residuals seem to hover around the zero mark, implying that the model's predictions are, on average, quite close to the actual observations. However, the extent and frequency of the spikes indicate that while the model captures the general trend, there are specific weekends where the model's predictions deviate considerably from the actuals.
+
+Implications for Box Office Predictions: The pattern observed in the residuals underscores the inherent unpredictability of weekend box office performances. While certain trends can be discerned and predicted, external factors such as film reviews, marketing campaigns, competition from other entertainment sources, or even broader economic and social dynamics can introduce significant variability. For future modeling approaches, it might be beneficial to incorporate additional exogenous variables or employ models that can better capture the volatility in the data, such as GARCH (Generalized Autoregressive Conditional Heteroskedasticity) models.
+
+
+ACF Analysis:
+
+he Autocorrelation Function (ACF) plot of the residuals from a time series model reveals valuable insights into the adequacy of the model. The plot initially shows a strong autocorrelation at lag 0, as expected, but rapidly declines, with subsequent autocorrelations hovering close to zero and within significance bounds. This suggests that the model has effectively captured most of the data's structure, as there is no significant correlation between residuals from one period to the next. The random fluctuations in higher lags resemble white noise, indicating a well-fitted model. Additionally, the absence of significant peaks at regular intervals in the ACF plot implies that no seasonality is left in the residuals, affirming the model's success in capturing the data's underlying patterns. However, it's advisable to complement this analysis with other diagnostic tools and tests for white noise to form a comprehensive assessment of the model's performance.
+
+
+PACF Analysis:
+
+The Partial Autocorrelation Function (PACF) plot of residuals provides important insights into the adequacy of a time series model. The blue dashed lines represent significance bounds, and PACF values within these bounds indicate that the corresponding lag's partial autocorrelation is not statistically significant. While the PACF plot reveals sparse significant lags, notably at lags 5, 25, and 30, it suggests that the residuals may be influenced by data points at these lags that the model hasn't fully captured. This could imply a need to explore additional autoregressive terms in an ARIMA model. However, the absence of a systematic pattern and the majority of PACF values hovering around zero, particularly for higher lags, are positive signs that the model has successfully captured most of the linear relationships in the data. To form a comprehensive assessment, it's advisable to complement this analysis with other diagnostic tools and checks to ensure the model's adequacy and validate the PACF plot's findings.
+
+
+Histogram of residuals:
+
+The distribution of residuals is centered around zero, suggesting that on average, the model does not consistently overpredict or underpredict. This is a positive sign of a well-fitted model. The bulk of the residuals seem to cluster in a relatively narrow range, with a few noticeable tails extending out, especially towards the right. The shape of the distribution appears to be slightly right-skewed, meaning there are a few instances where the model has notably underpredicted the actual values.
+
+
+QQ Plot:
+
+From the Q-Q plot above, the points closely follow the diagonal line for a considerable range, which suggests that the residuals have a distribution that is approximately normal for a significant portion. However, noticeable deviations are present at both tails, especially at the lower left and upper right. The lower tail's deviation suggests that there are more extreme values in the negative direction than what would be expected in a normal distribution. Similarly, the upper tail shows some curvature, suggesting that the residuals have some heavier tails or more extreme values than a standard normal distribution would exhibit. In summary, while the main body of the residuals appears to be roughly normally distributed, the tails present deviations, implying potential outliers or instances where the model does not capture the underlying data's behavior well.
+
+Overall, the model diagnostics indicate that the model performs well in capturing the data's patterns but exhibits shortcomings, particularly in proximity to the years affected by COVID-19. The next logical step would involve incorporating additional variables into different model types and conducting a comparative analysis.
+
+
+Auto ARIMA
+
+```{r}
+
+fit <- auto.arima(ts_data)
+summary(fit)
+
+```
+Auto ARIMA has recommended an ARIMA(4,1,1) model, which differs from the previously determined ARIMA(3,1,2) model that was considered the best option. The discrepancy can likely be attributed to the presence of outliers in the data, primarily resulting from the impact of COVID. Auto ARIMA is equipped to handle outliers more effectively, and this might explain the variation in model selection.
+
+
+```{r}
+# Assuming you've loaded the necessary libraries and your time series data is in 'ts_data'
+
+# Fit the ARIMA(3,1,2) model
+library(forecast)
+model <- arima(ts_data, order=c(3,1,2))
+
+# Forecast for the next 4 periods
+forecasted <- forecast(model, h=100)
+
+# Plot the forecast with confidence intervals
+plot(forecasted , main = "Forecasts for next 100 weeks")
+
+
+```
+
+Over the forthcoming 100 weeks, the box office is projected to experience a modest performance. This anticipated trend aligns with the expected release of fewer blockbuster movies during this timeframe. However, it's crucial to note the wide confidence interval in the forecast, which suggests potential variability in the box office numbers. This could indicate the possibility of occasional surprise hits making their mark amidst the general trend, thereby offering moments of heightened success in an otherwise moderate performance period.
+
+
+Benchmarks
+
+Naive Methods:
+
+```{r}
+# Compute forecasted values
+
+arima_model <- arima(ts_data, order=c(3,1,2))
+yhat_arima <- fitted(arima_model)
+yhat_naive <- c(NA, ts_data[-length(ts_data)])
+
+mean((yhat_arima - ts_data)^2)
+
+```
+
+
+```{r}
+# Compute forecasted values
+
+arima_model <- arima(ts_data, order=c(3,1,2))
+yhat_naive <- c(NA, ts_data[-length(ts_data)])
+
+mean((yhat_naive - ts_data)^2 , na.rm = TRUE)
+
+```
+
+
+Naive is a worse model.
+
+```{r}
+# Compute residuals for both models
+residuals_naive <- yhat_naive - ts_data
+residuals_arima <- yhat_arima - ts_data
+
+# Set up subplot layout
+par(mfrow=c(1,2))
+
+# Plot residuals for naive model
+plot(residuals_naive, main="Residuals of Naive Model", type="l", ylab="Residuals", xlab="Time")
+
+# Plot residuals for ARIMA model
+plot(residuals_arima, main="Residuals of ARIMA Model", type="l", ylab="Residuals", xlab="Time")
+
+# Reset plot layout
+par(mfrow=c(1,1))
+
+```
+
+
+From the visual representations of the residuals for both the Naive and ARIMA models, we can observe distinct differences in their performance. The residuals from the Naive model showcase more pronounced fluctuations with a broader spread, while the ARIMA model appears to have a relatively tighter and more controlled residual distribution. The consistency in the ARIMA model's residuals suggests that this model is capturing the underlying patterns in the data more effectively than the Naive model. This observation aligns with the quantitative metric, where the Mean Squared Error (MSE) for the Naive model is higher than that of the ARIMA model. A lower MSE indicates that the ARIMA model's predictions are closer to the actual values, thus demonstrating its superior forecasting accuracy in this context compared to the simpler Naive model.
+
