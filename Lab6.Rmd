@@ -1,0 +1,287 @@
+---
+title: "Lab6-Anthony-Moubarak"
+output: html_document
+date: "2023-10-03"
+---
+
+```{r}
+wt <- read.csv("climate.csv")
+head(wt)
+```
+
+```{r}
+
+tobb= wt[1095:1344,c(3,11)]
+head(tobb)
+```
+
+```{r}
+tobb$DATE<-as.Date(tobb$DATE,"%Y-%m-%d")
+
+
+tobb$DATE[1]
+
+```
+
+```{r}
+tobb$DATE[length(tobb$DATE)]
+
+```
+
+```{r}
+library(lubridate)
+temp.ts = ts(tobb$TOBS, start=decimal_date(as.Date("2021-01-01")), frequency = 365.25)
+
+```
+
+## 1.Plot
+
+a. Plot the data using ggplot or plotly and comment.
+b. Do you think by taking the log transformation, does it make a difference, or make it better (less variation)?
+
+```{r}
+library(ggplot2)
+autoplot(temp.ts)+ggtitle("numbers of users connected to the Internet through a server every minute")
+
+```
+
+Applying a log transform
+```{r}
+
+library(ggplot2)
+
+# Plot with log transformation
+autoplot(temp.ts) + 
+  scale_y_log10() + 
+  ggtitle("Numbers of users connected to the Internet through a server every minute (Log Scale)")
+
+
+```
+
+Applying a log transformation does not seem to reduce the variability in the data and it almost looks the same.
+
+```{r}
+
+# Lag Plots
+par(mfrow=c(2,2))
+for(i in 1:4) {
+  lag.plot(temp.ts, lag=i, main=paste("Lag", i))
+}
+
+# Check frequency and attempt decomposition with stl
+freq <- frequency(temp.ts)
+if(freq > 1) {
+  try({
+    decomposed_stl <- stl(temp.ts, s.window="periodic")
+    plot(decomposed_stl)
+  }, silent = TRUE)
+} 
+
+if(!exists("decomposed_stl")) {
+  cat("The time series doesn't exhibit discernible seasonality or doesn't have enough periods for decomposition.")
+}
+
+
+
+```
+
+The time series doesn't exhibit discernible seasonality or doesn't have enough periods for decomposition.
+
+## 3. Fit an appropriate model
+
+a) Difference the data and check the acf and pacf graphs.
+```{r}
+
+# Load necessary libraries
+library(forecast)
+
+# Difference the data
+diff_temp.ts <- diff(temp.ts)
+
+# Plot differenced data
+plot(diff_temp.ts, main="Differenced Time Series")
+
+# ACF and PACF plots
+acf(diff_temp.ts, main="ACF of Differenced Data")
+pacf(diff_temp.ts, main="PACF of Differenced Data")
+
+
+```
+b) THe differenced time series plot suggests the data seems to oscillate around zero, which often suggests that the mean is constant over time. This is a good sign in terms of mean stationarity.
+
+From the ACF plot, the spike at lag 0 is always 1 because a time series is perfectly correlated with itself. As for the other lags, they appear to be within the blue bounds, indicating no significant autocorrelation at those lags.
+
+Based on these visualizations, the differenced series appears to have little to no autocorrelation. This might suggest that a simple autoregressive (AR) or moving average (MA) model might not capture much more information, but further diagnostics and analysis would be required.
+
+
+d) The initial p,d, and q are: 
+
+1. Given that it's already differenced once, we can start with d=1. 
+
+2. Based on the PACF plot, I am setting p to 1, as the significant spikes at the first lag indicates potential AR terms.
+
+3. The ACF plot does not show significant spikes, which means there's no strong evidence of an MA term. To be thorough,I will try q=1 in an initial model.
+
+To run the model on multiple choices of p,d, and q, i will set p to be one of (1,2,3), d to be a choice of (1,2) and q to be a choice of (0,1,2)
+
+
+```{r}
+library(forecast)
+
+evaluate_models <- function(data, p_values, d_values, q_values){
+  best_aic <- Inf
+  best_order <- c(0,0,0)
+  for (p in p_values){
+    for (d in d_values){
+      for (q in q_values){
+        order <- c(p,d,q)
+        model <- arima(data, order=order, method="ML")
+        current_aic <- AIC(model)
+        if (current_aic < best_aic){
+          best_aic <- current_aic
+          best_order <- order
+        }
+      }
+    }
+  }
+  return(best_order)
+}
+
+p_values <- c(1, 2, 3)
+d_values <- c(1, 2)
+q_values <- c(0, 1, 2)
+best_model_order <- evaluate_models(temp.ts, p_values, d_values, q_values)
+cat("Best ARIMA order:", best_model_order, "\n")
+```
+
+e) Forecast
+```{r}
+# Forecast
+
+fit <- arima(temp.ts, order=c(3,2,2), method="ML")
+
+# Forecast
+forecasted <- forecast(fit, h=10)  # h is the number of periods for the forecast, you can adjust as needed
+
+# Plot the forecast
+autoplot(forecasted) + ggtitle("Forecast from ARIMA(3,2,2)")
+
+
+```
+
+
+
+```{r}
+# Splitting data
+train_end <- 2021 + (200-1)/365.25
+train <- window(temp.ts, start=2021, end=train_end)
+test <- window(temp.ts, start=train_end + 1/365.25)
+
+# Fit ARIMA(3,2,2) model to the training data
+fit <- arima(train, order=c(3,2,2))
+
+# Forecasting
+forecasted2 <- forecast(fit, h=length(test))
+
+# Plotting forecast and actual test values
+autoplot(forecasted2) + autolayer(test, series="Actual", PI=FALSE) + 
+  ggtitle("Forecast from ARIMA(3,2,2) with Actual Test Data") +
+  guides(colour=guide_legend(title="Series"))
+```
+
+g) RMSE of ARIMA(3,2,2) compared to ARIMA(1,1,1)
+
+```{r}
+
+# Fit ARIMA(3,2,2) model to the training data and forecast
+fit_322 <- arima(train, order=c(3,2,2))
+forecasted_322 <- forecast(fit_322, h=length(test))
+residuals_322 <- test - forecasted_322$mean
+
+# RMSE for ARIMA(3,2,2)
+rmse_322 <- sqrt(mean(residuals_322^2))
+
+# Fit ARIMA(1,1,1) model to the training data and forecast
+fit_111 <- arima(train, order=c(1,1,1))
+forecasted_111 <- forecast(fit_111, h=length(test))
+residuals_111 <- test - forecasted_111$mean
+
+# RMSE for ARIMA(1,1,1)
+rmse_111 <- sqrt(mean(residuals_111^2))
+
+# Display RMSE values
+cat("RMSE for ARIMA(3,2,2):", rmse_322, "\n")
+cat("RMSE for ARIMA(1,1,1):", rmse_111, "\n")
+
+```
+
+ARIMA(1,1,1) seems to give a lower RMSE.
+
+h) Now the benchmark methods: use MAE and MSE for your ARIMA fit and benchmark methods and compare.Which model is good? Is your model outperform the benchmark methods.
+
+```{r}
+fit_arima <- Arima(train, order=c(1,1,1))
+forecast_arima <- forecast(fit_arima, h=length(test))
+
+# Compute errors for ARIMA(1,1,1)
+errors_arima <- test - forecast_arima$mean
+MAE_arima <- mean(abs(errors_arima))
+MSE_arima <- mean(errors_arima^2)
+
+# Naïve Forecast
+naive_forecast <- rep(tail(train, 1), length(test))
+
+# Compute errors for Naïve Forecast
+errors_naive <- test - naive_forecast
+MAE_naive <- mean(abs(errors_naive))
+MSE_naive <- mean(errors_naive^2)
+
+# Print the results
+cat("ARIMA(1,1,1) - MAE:", MAE_arima, "MSE:", MSE_arima, "\n")
+cat("Naïve Forecast - MAE:", MAE_naive, "MSE:", MSE_naive, "\n")
+```
+
+ARIMA(1,1,1) outperforms naive forecast.
+
+
+i) 
+
+```{r}
+library(forecast)
+library(ggplot2)
+
+# Assuming you've already defined temp.ts and fit the ARIMA(1,1,1) model
+# And created the two forecast objects as mentioned
+
+# Create a ggplot with the original data
+p <- ggplot() +
+  geom_line(aes(x = time(temp.ts), y = as.numeric(temp.ts)), color = "black", linewidth = 1, na.rm = TRUE) +
+  labs(title = "ARIMA(1,1,1) Forecasts", x = "Time", y = "Value")
+
+# Add the 10-day forecast
+p <- p + geom_line(aes(x = time(forecasted$mean), y = forecasted$mean), color = "red", linewidth = 1, na.rm = TRUE) +
+  geom_ribbon(aes(x = time(forecasted$mean), ymin = forecasted$lower[,1], ymax = forecasted$upper[,1]), alpha = 0.2, fill = "red")
+
+# Add the forecast for the length of test data
+p <- p + geom_line(aes(x = time(forecasted2$mean), y = forecasted2$mean), color = "blue", linewidth = 1, na.rm = TRUE) +
+  geom_ribbon(aes(x = time(forecasted2$mean), ymin = forecasted2$lower[,1], ymax = forecasted2$upper[,1]), alpha = 0.2, fill = "blue")
+
+# Adding a legend
+p <- p + scale_color_manual(values = c("black", "red", "blue"), labels = c("Original Data", "10-day Forecast", "Test Length Forecast")) +
+  theme_minimal()
+
+print(p)
+
+```
+
+The provided plot reveals a significant discrepancy between the two ARIMA(1,1,1) forecasts. The 10-day forecast, represented by the red line, aligns closely with the observed data, suggesting a well-fitted prediction over this short-term horizon. This might be indicative of the model capturing recent trends and seasonality, leading to an accurate short-term prediction.
+
+Conversely, the longer-term forecast (blue line) derived from the 80-20 split seems to deviate considerably from the actual values.
+
+
+# Problem 2
+
+
+
+
+
