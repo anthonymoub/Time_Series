@@ -1,0 +1,110 @@
+---
+title: "Quiz"
+---
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+##### Data Cleaning #########
+covid_new = read.csv("covid_usa_Vacc_new.csv") %>% select(date,new_cases,new_vaccinations)
+
+covid_new$date = as.Date(covid_new$date, format ="%Y-%m-%d")
+
+#replace 0's with nas
+
+covid_new$new_cases[covid_new$new_cases==0] = NA
+
+####################################################################################
+###### we have to convert the series into time series before using imputation #######
+
+covid.dat.ts = ts(covid_new,star =decimal_date(as.Date("2020-12-14",
+                                          format ="%Y-%m-%d")),
+                                          frequency = 365.25)
+
+#Missing Value Imputation by Last Observation Carried Forward
+
+covid.dat.ts[,"new_cases"] = na_locf(covid.dat.ts[,"new_cases"],option = 'locf',na_remaining="rev")
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
