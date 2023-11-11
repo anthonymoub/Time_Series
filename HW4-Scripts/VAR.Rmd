@@ -1,0 +1,289 @@
+---
+title: "VAR"
+output: html_document
+date: "2023-10-06"
+---
+
+```{r}
+df <- read.csv("gross_vs_rtscore.csv")
+head(df)
+```
+
+```{r}
+top10_gross <- df$top10_gross
+tomatometer_rating <- df$tomatometer_rating
+ 
+```
+
+```{r}
+pairs(cbind(WeekendGross=top10_gross, RTRating=tomatometer_rating))
+```
+
+```{r}
+x = cbind(top10_gross, tomatometer_rating)
+
+plot.ts(x , main = "", xlab = "")
+```
+
+```{r}
+summary(vars::VAR(x, p=1, type=c('both')))
+```
+
+```{r}
+library(vars)
+VARselect(x, lag.max=10, type="both")
+```
+
+```{r}
+summary(vars::VAR(x, p=4, type='both'))
+
+```
+
+```{r}
+summary(vars::VAR(x, p=6, type='both'))
+```
+
+```{r}
+library(vars)
+library(ggplot2)
+
+# Assuming x is your dataset
+# Convert x to a time series object (update frequency as per your data's nature)
+ts_obj <- ts(x, frequency = 52) # Assuming quarterly data
+
+# Set the start and end points for training and testing
+ts_obj
+
+```
+
+```{r}
+library(vars)
+
+# Assuming x is your dataset matrix
+n <- nrow(x)
+frequency <- 52  # Set the appropriate frequency of your time series
+
+# Convert x to a time series object
+ts_obj <- ts(x, frequency = frequency)
+
+# Determine the size of the training and testing sets
+train_size <- n - 10  # Modify this based on your cross-validation strategy
+test_size <- n - train_size
+
+# Initialize a vector to store RMSE for each iteration
+rmse1 <- numeric(test_size)
+rmse2 <- numeric(test_size)
+
+# Perform rolling window cross-validation
+for (i in 1:test_size) {
+  # Calculate the end year and week for the training set
+  end_year <- floor((train_size + i - 1) / 52)
+  end_week <- (train_size + i - 1) %% 52
+
+  # Calculate the start year and week for the testing set
+  start_year <- floor((train_size + i) / 52)
+  start_week <- (train_size + i) %% 52
+
+  # Split the data into training and testing sets
+  train_set <- window(ts_obj, end = c(end_year, end_week))
+  test_set <- window(ts_obj, start = c(start_year, start_week), end = c(start_year, start_week))
+
+  # Fit VAR model with p = 4
+  model1 <- VAR(train_set, p = 4, type = 'const')
+  model2 <- VAR(train_set, p = 6, type = 'const')
+
+  # Forecast using the model
+  forecast1 <- predict(model1, n.ahead = 1)
+  forecast2 <- predict(model2, n.ahead = 1)
+
+  # Calculate RMSE for this iteration
+  forecasted_values1 <- cbind(forecast1$fcst$top10_gross[, "fcst"], forecast$fcst$tomatometer_rating[, "fcst"])
+  actual_values <- test_set[1, ]
+  forecasted_values2 <- cbind(forecast2$fcst$top10_gross[, "fcst"], forecast$fcst$tomatometer_rating[, "fcst"])
+  actual_values <- test_set[1, ]
+  rmse1[i] <- sqrt(mean((forecasted_values1 - actual_values)^2))
+  rmse2[i] <- sqrt(mean((forecasted_values2 - actual_values)^2))
+}
+
+
+# Calculate average RMSE
+avg_rmse <- mean(rmse1)
+
+# Output the average RMSE
+print(avg_rmse)
+
+```
+
+```{r}
+rmse1
+```
+
+```{r}
+library(vars)
+library(forecast)
+
+library(vars)
+library(forecast)
+
+# Assuming ts_obj is your time series object with frequency = 52
+# Fit the VAR model with p = 4
+model <- VAR(ts_obj, p = 4, type = 'const')
+
+# Forecasting
+n.ahead <- 100  # Forecasting 4 weeks ahead
+
+# Generate the forecast
+forecast <- predict(model, n.ahead = n.ahead)
+
+# Plotting the forecast
+# This will create a separate plot for each variable in the VAR model
+plot(forecast, main = "VAR Forecast")
+
+```
+
+```{r}
+ data <- data.frame(Index = 1:10, RMSE1 = rmse1, RMSE2 = rmse2)
+
+# Plot using ggplot2
+ggplot(data, aes(x = Index)) +
+  geom_line(aes(y = RMSE1, colour = "Lag 4")) +
+  geom_line(aes(y = RMSE2, colour = "Lag 6")) +
+  labs(title = "Model Comparisons",
+       x = "Fold", y = "RMSE") +
+  scale_colour_manual("", 
+                      breaks = c("Lag 4", "Lag 6"),
+                      values = c("blue", "red"))
+```
+
+# VAR Model 2 
+
+```{r}
+df <- read.csv("VAR_df2.csv")
+head(df)
+```
+
+
+```{r}
+top10_gross <- df$top10_gross
+amc_closing_stock <- df$Close
+
+```
+
+
+```{r}
+pairs(cbind(WeekendGross=top10_gross, AMC_Stock=amc_closing_stock))
+```
+
+```{r}
+
+# Load necessary library
+library(vars)
+
+# Assuming top10_gross and amc_closing_stock are vectors of your data.
+# Combine them into a data frame or matrix 'x'.
+x <- cbind(top10_gross, amc_closing_stock)
+
+# Ensure that 'x' is a data frame or matrix
+x <- as.data.frame(x)
+
+# Remove rows with NAs
+x <- na.omit(x)
+
+# Check that 'x' has at least two columns, as expected
+if(ncol(x) < 2) {
+  stop("The data does not contain enough columns after NA removal.")
+}
+
+# Now that 'x' has no NAs and is confirmed to have at least two columns,
+# we can select the number of lags for the VAR model
+lag_selection <- VARselect(x, lag.max=10, type="both")
+print(lag_selection)
+
+```
+
+```{r}
+
+summary(vars::VAR(x, p=1, type=c('both')))
+```
+
+
+```{r}
+
+summary(vars::VAR(x, p=4, type=c('both')))
+
+```
+
+
+```{r}
+library(vars)
+
+# Assuming x is your dataset matrix
+n <- nrow(x)
+frequency <- 52  # Set the appropriate frequency of your time series
+
+# Convert x to a time series object
+ts_obj <- ts(x, frequency = frequency)
+
+# Determine the size of the training and testing sets
+train_size <- n - 10  # Modify this based on your cross-validation strategy
+test_size <- n - train_size
+
+# Initialize a vector to store RMSE for each iteration
+rmse1 <- numeric(test_size)
+rmse2 <- numeric(test_size)
+
+# Perform rolling window cross-validation
+for (i in 1:test_size) {
+  # Calculate the end year and week for the training set
+  end_year <- floor((train_size + i - 1) / 52)
+  end_week <- (train_size + i - 1) %% 52
+
+  # Calculate the start year and week for the testing set
+  start_year <- floor((train_size + i) / 52)
+  start_week <- (train_size + i) %% 52
+
+  # Split the data into training and testing sets
+  train_set <- window(ts_obj, end = c(end_year, end_week))
+  test_set <- window(ts_obj, start = c(start_year, start_week), end = c(start_year, start_week))
+
+  # Fit VAR model with p = 4
+  model1 <- VAR(train_set, p = 1, type = 'const')
+  model2 <- VAR(train_set, p = 4, type = 'const')
+
+  # Forecast using the model
+  forecast1 <- predict(model1, n.ahead = 1)
+  forecast2 <- predict(model2, n.ahead = 1)
+
+  # Calculate RMSE for this iteration
+  forecasted_values1 <- cbind(forecast1$fcst$top10_gross[, "fcst"], forecast$fcst$tomatometer_rating[, "fcst"])
+  actual_values <- test_set[1, ]
+  forecasted_values2 <- cbind(forecast2$fcst$top10_gross[, "fcst"], forecast$fcst$tomatometer_rating[, "fcst"])
+  actual_values <- test_set[1, ]
+  rmse1[i] <- sqrt(mean((forecasted_values1 - actual_values)^2))
+  rmse2[i] <- sqrt(mean((forecasted_values2 - actual_values)^2))
+}
+
+
+```
+
+```{r}
+rmse1
+```
+
+```{r}
+rmse2
+```
+
+```{r}
+ data <- data.frame(Index = 1:10, RMSE1 = rmse1, RMSE2 = rmse2)
+
+# Plot using ggplot2
+ggplot(data, aes(x = Index)) +
+  geom_line(aes(y = RMSE1, colour = "Lag 1")) +
+  geom_line(aes(y = RMSE2, colour = "Lag 4")) +
+  labs(title = "Model Comparisons",
+       x = "Fold", y = "RMSE") +
+  scale_colour_manual("", 
+                      breaks = c("Lag 1", "Lag 4"),
+                      values = c("blue", "red"))
+```

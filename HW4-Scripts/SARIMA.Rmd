@@ -1,0 +1,128 @@
+---
+title: "ARIMA"
+output: html_document
+date: "2023-10-06"
+---
+
+```{r}
+
+library(tseries)
+library(ggplot2)
+
+df <- read.csv("ARIMA.csv")
+head(df)
+```
+
+```{r}
+adf_test <- adf.test(df$top10_gross)
+print(adf_test)
+if (adf_test$p.value <= 0.05) {
+  cat("The series is stationary.\n")
+} else {
+  cat("The series is not stationary.\n")
+}
+```
+
+Picking p,d, and q is exaclty the same like in ARIMA. The job now is to predict P,D, and Q
+```{r}
+ 
+acf(df$top10_gross, main="ACF of top10_gross")
+```
+
+```{r}
+pacf(df$top10_gross, main="PACF of top10_gross")
+```
+
+The ACF and PACF plots are essential tools for determining the order of AR and MA terms in an ARIMA model. Analyzing the ACF plot, which displays a gradual decay, suggests the presence of an AutoRegressive (AR) process. The lack of a sharp cut-off after a particular lag hints that the data could be better described using an AR term. Meanwhile, the PACF plot reveals significant spikes at lags 1 and 2, indicating two potential AR terms, while the subsequent spikes fall within the confidence intervals and can be disregarded.
+
+Given these observations, the AR term's order (p) is likely 2, as deduced from the two significant lags in the PACF. The MA term's order (q) is not explicitly evident from the ACF plot. However, considering the ACF's gradual decline, it's possible that an MA term may not be necessary or, if deemed essential, could commence at q=1, with further adjustments made based on model diagnostics. In conclusion, an initial ARIMA model can be considered with p=2 and a tentative q=1, which can then be refined as required.
+
+Getting P,D, and Q values:
+
+Plot the ACF 
+```{r}
+library(forecast)
+top10_gross_ts <- ts(df$top10_gross, frequency = 52) # Replace '12' with the correct frequency for your data
+
+Acf(top10_gross_ts, lag.max=104)
+
+```
+
+```{r}
+Pacf(top10_gross_ts, lag.max=104)
+```
+
+```{r}
+# ADF test
+
+# Assuming top10_gross_ts is your original time series
+# Perform seasonal differencing with lag of 52 weeks (1 year)
+seasonally_differenced <- diff(top10_gross_ts, lag=52)
+
+# Apply the Augmented Dickey-Fuller test to the seasonally differenced series
+adf_test_results <- adf.test(seasonally_differenced, alternative="stationary")
+
+# Output the results
+adf_test_results
+
+```
+D = 1 is enough 
+
+Initial model:
+```{r}
+# Load the forecast library
+library(forecast)
+
+# Assuming top10_gross_ts is your time series data set with a frequency of 52
+# Fit the SARIMA model
+sarima_model <- Arima(top10_gross_ts, order=c(4,1,1), seasonal=list(order=c(1,1,1), period=52))
+
+# Summary of the model
+summary(sarima_model)
+
+
+```
+
+
+Running an auto.sarima
+
+```{r}
+# Load the forecast library
+library(forecast)
+
+# Assuming top10_gross_ts is your time series data set with a frequency of 52
+# Use auto.arima to find the best fitting model
+best_sarima_model <- auto.arima(top10_gross_ts, seasonal = TRUE, stepwise = FALSE, approximation = FALSE)
+
+# Summary of the model
+summary(best_sarima_model)
+
+
+```
+
+Auto
+
+
+```{r}
+# Model diagnostics for my SARIMA model
+
+checkresiduals(sarima_model)
+
+
+```
+
+
+```{r}
+# Forecaast using my SARIMA model
+
+# Assuming sarima_model is your fitted SARIMA model
+
+# Forecast the next 20 weeks
+forecasted_values <- forecast(sarima_model, h=50)
+
+# Plot the forecast
+plot(forecasted_values, main="50-Week Forecast using SARIMA Model")
+
+
+```
+
