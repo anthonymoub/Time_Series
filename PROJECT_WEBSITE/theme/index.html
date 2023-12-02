@@ -112,6 +112,14 @@
 		  <li class="nav-item">
             <a class="nav-link" href="#ARIMAX">ARIMAX</a>
           </li>
+
+		  <li class="nav-item">
+            <a class="nav-link" href="#ARCH">ARCH</a>
+          </li>
+
+		  <li class="nav-item">
+            <a class="nav-link" href="#DL">Deep Learning</a>
+          </li>
           </li>
         </ul>
       </div>
@@ -852,7 +860,10 @@
 								
 								For this project, I chose to employ an ARIMAX model to forecast the total weekend box office revenues, taking into consideration the broader economic climate as indicated by the Dow Jones stock price. 
 								The underlying assumption is that the economy's health directly influences consumers' purchasing power, 
-								which in turn affects their discretionary spending decisions, including cinema attendance. Below is a scatter plot 
+								which in turn affects their discretionary spending decisions, including cinema attendance.
+								The synergy between the economy and box office performance has been a famous theory discussed in the market. Articles like <a href="https://leaders.com/news/entertainment/box-office-popularity-and-the-economy/#:~:text=Historically%2C%20people%20going%20to%20the,office%20sales%20are%20historically%20high">this one</a> perfectly outline this relationship.
+<br><br>
+								Below is a scatter plot 
 								that illustrates this relationship (Weekly CLosing Price vs Weekend Box Office):
 <br>
 							</p>
@@ -939,7 +950,18 @@
 	
 							<p class="analysis">
 								
-							In the project, a Vector Autoregression (VAR) model is employed to forecast total weekend box office revenues while incorporating the average Rotten Tomatoes critic scores of movies releasing that same weekend. This approach is particularly strategic as Rotten Tomatoes scores are typically available a week before a film's release and have a significant influence on potential viewers' decisions to watch a movie in theaters. The premise is that a film's critical reception can drive audience turnout, thereby affecting box office returns. Conversely, the success of a box office weekend may enhance the perceived quality of the movies released during that period, potentially affecting their subsequent ratings. By using a VAR model, the project aims to unravel and quantify these interdependencies to better predict box office performance, acknowledging the critical role that public perception and critic ratings play in the financial success of film releases.		
+							In the project, a Vector Autoregression (VAR) model is employed to forecast total weekend box office revenues while incorporating the average Rotten Tomatoes critic scores of movies releasing that same weekend. This approach is particularly strategic as Rotten Tomatoes scores are typically available a week before a film's release and have a significant influence on potential viewers' decisions to watch a movie in theaters.
+							
+							
+							The premise is that a film's critical reception can drive audience turnout, thereby affecting box office returns. 
+							
+							Conversely, the success of a box office weekend may enhance the perceived quality of the movies released during that period,
+							
+							potentially affecting their subsequent ratings. This relationship has been widely discussed in the film industry, and even top outlets like Screenrant have discussed it in the following article <a href="https://screenrant.com/rotten-tomatoes-audience-score-most-important-success-performance/">https://screenrant.com/rotten-tomatoes-audience-score-most-important-success-performance/</a>
+							
+							
+							
+							By using a VAR model, the project aims to unravel and quantify these interdependencies to better predict box office performance, acknowledging the critical role that public perception and critic ratings play in the financial success of film releases.		
 							The relationship between the two variables can be visualized below: <br>
 							</p>
 							
@@ -1195,6 +1217,326 @@
 			</div>
 		</section>
 
+
+		<!-- ARCH/GARCH Section -->
+
+		<section id="ARCH">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="section-title text-center">
+							<h2>ARCH/GARCH</h2>
+							<br>
+							<h3 style="font-weight: 800; text-decoration: underline;">Introduction</h3>
+	
+						<p class="analysis">
+							
+ARCH (Autoregressive Conditional Heteroskedasticity) and GARCH (Generalized ARCH) models are fundamental in financial econometrics for analyzing time series data with changing volatility. These models capture the phenomenon where the variability of a time series changes over time, a common characteristic in financial markets. In ARCH models, the current variance of a time series is a function of the past squared residuals, thus linking today's volatility to the observed variability in the past. GARCH models extend this concept by incorporating both past variances and past squared residuals, allowing for a more comprehensive representation of volatility dynamics. 
+
+						</p>
+						
+						</div>
+	
+						<div class="section-title text-center">
+	
+							<h3 style="font-weight: 800; text-decoration: underline;">Fitting VAR</h3>
+	
+							<p class="analysis">
+								
+								
+							In this project, ARCH/GARCH models were employed to forecast the stock prices of Netflix, a company widely regarded as a bellwether for the streaming industry. Given Netflix's significant influence in the evolving landscape of film and cinema, understanding its financial trajectory is crucial. These models are particularly suited for this task due to their ability to capture the dynamic and often volatile nature of stock prices, especially in the rapidly changing media and entertainment sector. By analyzing Netflix's stock data, the project aimed to glean insights into broader trends within the streaming domain, a sector many consider to be the future of entertainment.
+						<br>	
+						</p>
+							
+							<img src="images/Netflix_stock.png" class="img-fluid w-100">
+
+						<p class="analysis">
+								
+							Visually, the series exhibits a clear upward trend, especially noticeable from around 2012 onwards, with significant volatility and a pronounced spike before a substantial drop. This behavior suggests that the time series is non-stationary, as it does not exhibit a constant mean over time. The variance also appears to be changing, with periods of higher volatility, particularly in later years. For ARCH/GARCH modeling, which assumes stationarity, differencing the series or modeling the mean as a function of time might be necessary to stabilize the mean before applying volatility models. 
+
+						<br> <br>
+
+						Also, the time series is obviously not stationary, so first order differencing was applied 
+						before moving on with modelling.
+						
+						
+						</p>
+
+						<img src="images/ACF_garch.png" class="img-fluid w-100">
+
+						<p class="analysis">
+								
+							The figure above shows the ACF plot for the differenced
+							Netflix time series suggests that the differencing has
+							been effective in removing any autocorrelation from the data,
+							as indicated by all the autocorrelation coefficients 
+							lying within the blue dashed significance bounds. This pattern is typical of a series that does not have any autocorrelation at various lags, implying that the data is now stationary. None of the spikes exceed the significance level, which means there is no evidence of seasonal effects or autoregressive behaviors that need to be modeled. Consequently, this could mean that an ARIMA model with the current differencing level might be appropriate, as there's no need for additional AR or MA terms based on this ACF plot alone.
+
+						
+						</p>
+							
+
+						</div>
+	
+						<div class="section-title text-center">
+	
+							<h3 style="font-weight: 800; text-decoration: underline;">Fitting ARIMA</h3>
+
+	
+						<p class="analysis">
+							Fitting an ARIMA (Autoregressive Integrated Moving Average)
+							model is an essential preliminary step in ARCH/GARCH modeling, 
+							especially when dealing with financial time series data. The ARIMA
+							model addresses and captures the linear dependencies in the mean of
+							the time series, which is a necessary condition before analyzing conditional
+							volatility with ARCH/GARCH models.
+
+							<br><br>
+
+							Using the auto arima function in R, the best ARIMA model returned is an ARIMA(0,1,1), which 
+							was used on the data.
+
+							<br>
+						</p>
+
+						<img src="images/ARIMAResiduals.png" class="img-fluid w-100">
+
+						<p class="analysis">
+							The residuals from the ARIMA model displayed in the figure above show
+							variability over time, which is a key aspect to examine when
+							assessing the model's fit. Ideally, the residuals of a 
+							well-fitted ARIMA model should resemble white noise, 
+							meaning they are normally distributed with a mean of zero 
+							and constant variance, and are uncorrelated over time. 
+							In the figure, the residuals seem to hover around the zero 
+							line, which is a good sign indicating that the model does 
+							not have any obvious bias.
+
+
+							<br><br>
+							However, there are periods, particularly noticeable around 2015 and beyond, where there are spikes of high volatility in the residuals. These spikes suggest the presence of heteroskedasticity, a condition where the variance of the residuals is not constant over time. This is where ARCH/GARCH models become useful, as they are designed to model such conditional volatility.
+
+							<br>
+						</p>
+		
+						<img src="images/ACF_Squared_Res.png" class="img-fluid w-100">
+
+						<p class="analysis">
+
+							The ACF plot of the squared residuals from the ARIMA model shows how the squared residuals are correlated with themselves at different lags. The fact that most of the spikes are within the blue dashed confidence bounds suggests that there is little to no autocorrelation in the squared residuals at the majority of lags. This could indicate that there is no significant volatility clustering in the data, and the conditional heteroskedasticity (changes in variance over time) might not be present or is minimal.
+							<br><br>
+							However, there are a few lags where the ACF of the squared residuals does exceed the confidence bounds, albeit not by a substantial margin. These instances, although not strong, do hint at some degree of volatility clustering at specific points in time. This could imply that while the ARIMA model has captured much of the linear structure in the mean of the time series, there could still be some information in the variance structure that could be modeled by an ARCH or GARCH model.
+
+						</p>
+
+						</div>
+
+						<div class="section-title text-center">
+	
+							<h3 style="font-weight: 800; text-decoration: underline;">Fitting GARCH</h3>
+							
+						<p class="analysis">
+
+
+						After examining the Autocorrelation Function (ACF) of the squared 
+						residuals from the ARIMA model, a GARCH(1,0) model was selected for 
+						fitting the data. This decision was informed by the ACF plot, which 
+						revealed significant autocorrelation at the first lag but not at higher-order
+						lags. Such a pattern indicates that the variance in the current period is 
+						influenced predominantly by the variance in the immediate past period, 
+						without the need for additional lagged terms. Consequently, 
+						the GARCH(1,0) model, which incorporates just one past squared 
+						residual term, was deemed to be the most appropriate for capturing
+						the observed volatility clustering in the residuals, aligning with the parsimonious principle of model selection while adequately accounting for the time series volatility dynamics.
+						The model's equation:
+						<br><br> </p>
+
+						h<sub>t</sub> = 0.60252 + 0.55190 &middot; &epsilon;<sub>t-1</sub><sup>2</sup>
+
+						<p class="analysis">
+						Below is a plot of the model's residuals:
+
+						<br><br>
+
+						</p>
+
+						<img src="./images/GARCH_Residuals.png" style="height: 500px; width: 700px;">
+
+						<p class="analysis">
+							The figure above shows the GARCH model residuals over time, 
+							showing a dispersion of values fluctuating around the zero line,
+							 suggesting that the model does not exhibit any systematic bias.
+							The residuals seem to be well distributed with no obvious patterns or trends,
+							indicating that the GARCH model has likely captured the conditional variance 
+							in the data effectively. However, there are visible outliers, with some 
+							residuals deviating significantly from zero. These outliers are a common 
+							feature in financial time series data, often representing extreme market 
+							movements not fully explained by the model. While the presence of outliers 
+							is expected to some extent, their frequency and magnitude could warrant 
+							further investigation into whether a more complex GARCH model, such as one
+							 with additional lags or an asymmetric GARCH model, could better account 
+							 for the observed leptokurtosis and potential volatility clustering in the 
+							 residuals. Overall, the model appears to perform adequately, but the outliers 
+							 suggest that there may be room for improvement in capturing the tails of the 
+							 distribution.
+<br><br>
+
+
+						</p>
+
+
+						</div>
+
+					</div>
+	
+				</div>
+			</div>
+		</section>
+
+
+		<!-- DEEP LEARNING SECTION -->
+
+		<section id="DL">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="section-title text-center">
+							<h2>Deep Learning</h2>
+							<br>
+							<h3 style="font-weight: 800; text-decoration: underline;">Introduction</h3>
+	
+						<p class="analysis">
+							
+							Deep learning models, such as Recurrent Neural Networks (RNN), Long Short-Term Memory (LSTM), and Graph Neural Networks (GNN), have gained prominence in time series analysis, presenting a powerful alternative to traditional econometric models. In the context of time series data, these models excel at capturing intricate patterns and dependencies. RNNs, with their sequential memory structure, are adept at modeling temporal dependencies, allowing them to capture trends and patterns over time. LSTMs, an extension of RNNs, address the vanishing gradient problem, making them particularly effective in handling long-term dependencies. On the other hand, GNNs bring a graph-based approach, enabling the modeling of complex relationships within interconnected time series data. Applying these deep learning architectures to time series analysis allows for a more nuanced understanding of temporal dynamics, paving the way for enhanced predictive capabilities and insights into evolving patterns, much like ARCH and GARCH models in financial econometrics.
+
+							<br><br>
+
+							In the context of this project, RNN, LSTM, and GRU were all fit on the weekly box office data, which was used for the ARIMA 
+							section of this project. At the end of this section, the 3 deep learning models will be compared with the ARIMA model 
+							that was developed earlier in order to conclude which is a better option for this dataset.
+
+						</p>
+						
+						</div>
+	
+						<div class="section-title text-center">
+	
+							<h3 style="font-weight: 800; text-decoration: underline;">Fitting Deep Learning Models</h3>
+	
+							<p class="analysis">
+								
+								
+							RNN, GRU, and LSTM models were all fit with the same logic/steps, which are explained below:
+
+							<br> <br>	
+
+							1. Cross-Validation: TimeSeriesSplit was used for cross-validation, dividing the time series data into 5 sequential training and validation sets to ensure temporal consistency.
+							
+							2. Loss Function: The model uses Mean Squared Error (MSE) as the loss function, measuring the average squared difference between predicted and actual values, ideal for regression tasks.
+
+							3. Epochs: The training process is run for 100 epochs, allowing the model to iteratively learn and adjust weights to minimize the loss function.
+
+							4. Validation Set: After training, the model is validated on separate data subsets in each split to evaluate its performance and generalizability on unseen data.
+						</p>
+							
+							
+						</div>
+	
+						<div class="section-title text-center">
+	
+							<h3 style="font-weight: 800; text-decoration: underline;"></h3>
+
+
+						<img src="images/NN_Results.png" class="img-fluid w-100">
+
+	
+						<p class="analysis">
+							The figure above shows that the RNN model has the lowest RMSE, suggesting that it performs better in terms 
+							of prediction accuracy on the given dataset compared to the GRU and LSTM models. The GRU model has an intermediate
+							value of RMSE, while the LSTM model exhibits the highest RMSE, implying it has the least prediction accuracy among
+							the three. This could indicate that for the specific dataset and problem at hand, the simpler RNN architecture was
+							sufficient to capture the patterns in the data, while the more complex GRU and LSTM structures might be overfitting
+							or not as well-tuned for the task. However, it's also important to consider that the performance of these models heavily
+							depends on how they are configured and trained, and so these results do not necessarily mean that RNNs are generally superior to GRUs or LSTMs.
+
+
+							<br>
+						</p>
+
+						</div>
+
+						<div class="section-title text-center">
+	
+							<h3 style="font-weight: 800; text-decoration: underline;">Regularization</h3>
+							
+						<p class="analysis">
+
+
+						All the deep learning models trained included an L2 regularization.
+						L2 regularization works by adding a penalty equal to the square of the magnitude of coefficients to the loss function.
+						The penalty term is the sum of the squares of all the feature weights, multiplied by the regularization parameter, 
+						which in this case is 0.01. This regularization technique encourages the model to keep the weights as small as possible, which helps to prevent overfitting by discouraging the model from fitting the noise in the training data. The regularization strength is controlled by the lambda parameter (0.01 here); a larger value of lambda will produce a stronger penalty, and hence, more regularization. 
+						
+						<br><br>
+						In terms of how it impacts the models' performances, i tried each of the 3 models (in the initial development step) with and without L2 regularization,
+						and all models performed worse when L2 was not included, which indicates that the models tend to overfit the data without regularization.
+</p>
+
+
+
+						</div>
+
+						<div class="section-title text-center">
+	
+							<h3 style="font-weight: 800; text-decoration: underline;">Comparing to ARIMA and Forecasting</h3>
+							
+						<p class="analysis">
+
+
+						Since the model was ran on the same exact dataset used for the ARIMA modelling, it only makes sense to compare the RMSE 
+						of ARIMA and GRU (best performing NN model):
+						<br><br> </p>
+
+						<img src="./images/ARIMA_GRU.png" style="height: 500px; width: 700px;">
+
+						
+
+						<p class="analysis">
+							The RMSE is significantly higher for ARIMA than for the GRU model. This suggests that in this specific instance, 
+							the GRU model is much more accurate in its predictions. The difference in performance might be due to the GRU's ability
+							 to capture complex patterns and dependencies in the data, which are especially present in time series with non-linear 
+							 characteristics. This analysis implies that for the given dataset, the machine learning approach via GRU outperforms 
+							 the more traditional statistical method implemented in ARIMA. 
+
+						<br><br>
+
+						</p>
+
+						<img src="./images/GRU_Forecasts.png" style="height: 500px; width: 700px;">
+
+						<p class="analysis">
+							The figure above shows the predicted vs actual values of the GRU model on the validation set.
+							While the GRU model's predictions appear to align well with the actual values, there are sections 
+							where the blue line shows sharp spikes or drops that the red line does not fully capture. This is indicative
+							of the model's limitations in responding to sudden changes or outliers in the time series. The blue line's 
+							greater volatility suggests that the data has periods of high variability, which are challenging for any model to predict accurately. Nonetheless, the overall synchrony between the actual and predicted lines suggests that the GRU model has effectively learned the underlying patterns in the data. 
+
+							<br><br>
+
+
+						</p>
+
+
+						</div>
+
+
+
+
+					</div>
+	
+				</div>
+			</div>
+		</section>
 
 
 		
